@@ -1,0 +1,16 @@
+question,option_a,option_b,option_c,option_d,correct,marks,difficulty,topic
+What does DNS do on a network?,Assigns IP addresses,Translates domain names to IP addresses,Encrypts web traffic,Filters spam email,b,1,easy,Networking
+Which command shows a Windows PC's IP configuration?,ping,tracert,ipconfig,netstat,c,1,easy,Networking
+Which cable type is least affected by electrical interference?,Cat5e UTP,Coaxial,Fibre optic,Telephone cable,c,1,medium,Networking
+What is the purpose of a VLAN?,Increase internet speed,Split one physical network into separate logical networks,Back up switch settings,Provide wireless coverage,b,2,hard,Networking
+Which of these is an input device?,Monitor,Printer,Scanner,Speaker,c,1,easy,Hardware
+A laptop is slow and its disk light stays on. What is the most likely cause?,Faulty keyboard,Low RAM forcing heavy use of the page file,Wrong screen resolution,Outdated wallpaper,b,2,medium,Hardware
+What does SSD stand for?,Solid State Drive,System Storage Device,Secure Server Disk,Serial Speed Drive,a,1,easy,Hardware
+What is the main benefit of two-factor authentication?,Faster logins,A stolen password alone is not enough to sign in,No need for passwords,Free antivirus,b,1,easy,Security
+Ransomware typically…,Speeds up the computer,Encrypts files and demands payment,Repairs corrupted files,Updates drivers,b,1,easy,Security
+"Which backup rule recommends 3 copies, on 2 types of media, with 1 offsite?",1-2-3 rule,3-2-1 rule,RAID rule,Grandfather rule,b,2,medium,Security
+A staff member finds an unknown USB drive in the car park. What should they do?,Plug it in to find the owner,Hand it to ICT without plugging it in,Format it and keep it,Copy files onto it,b,1,medium,Security
+"In Excel, what does =SUM(B2:B10) do?",Counts cells in B2 to B10,Adds the values in B2 to B10,Averages B2 and B10,Multiplies B2 by B10,b,1,easy,Productivity
+Which Excel function counts cells that meet a condition?,COUNT,COUNTA,COUNTIF,SUMIF,c,2,medium,Productivity
+"In a database, what is a primary key?",A password for the database,A column that uniquely identifies each row,The first table created,An encrypted backup,b,2,medium,Databases
+Which SQL statement retrieves data from a table?,INSERT,UPDATE,SELECT,DELETE,c,1,easy,Databases
