@@ -10,7 +10,7 @@
  * All demo accounts use the @demo.pytest.local domain and the password below.
  * Run with: npm run seed:demo   (remove with: npm run seed:demo -- --reset)
  */
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { PoolConnection, ResultSetHeader, RowDataPacket } from 'mysql2/promise';
 import pool from '../config/database';
 import { finalizeAttempt, shuffle } from '../services/attempt.service';

@@ -1,6 +1,6 @@
 
 import { Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import pool from '../config/database';
 import { RowDataPacket } from 'mysql2';
 import { AppError } from '../middleware/errorHandler';
