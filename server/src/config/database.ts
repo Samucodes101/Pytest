@@ -8,7 +8,8 @@ dotenv.config();
 function readCa(value: string | undefined) {
   if (!value) return undefined;
   if (value.includes('BEGIN CERTIFICATE')) return value.replace(/\\n/g, '\n');
-  return fs.readFileSync(value, 'utf8');
+  if (fs.existsSync(value)) return fs.readFileSync(value, 'utf8');
+  throw new Error('DB_SSL_CA must be the full certificate text (including the BEGIN/END CERTIFICATE lines) or a path to the .pem file');
 }
 
 const pool = mysql.createPool({
