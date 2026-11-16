@@ -13,11 +13,22 @@ import { errorHandler } from './middleware/errorHandler';
 import { securityHeaders } from './middleware/security';
 import { getJwtSecret } from './middleware/auth';
 import { closeExpiredAttempts } from './services/attempt.service';
+import pool, { dbConfigProblem } from './config/database';
 
 dotenv.config();
 
-// Fail fast: in production a missing JWT_SECRET stops the server at boot rather than at first sign-in.
-getJwtSecret();
+const onVercel = Boolean(process.env.VERCEL);
+
+// Configuration problems found at startup. Locally a missing JWT_SECRET stops the
+// server straight away; on Vercel the app still starts so /api/health can say what is wrong.
+const configProblems: string[] = [];
+if (dbConfigProblem) configProblems.push(dbConfigProblem);
+try {
+  getJwtSecret();
+} catch (error) {
+  if (!onVercel) throw error;
+  configProblems.push((error as Error).message);
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +39,23 @@ app.use(securityHeaders);
 app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173', credentials: true }));
 app.use(express.json({ limit: '1mb' }));
 
+// Reports configuration and database status. Shows only whether settings are present, never their values.
+app.get('/api/health', async (_req, res) => {
+  const names = ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'DB_SSL', 'DB_SSL_CA', 'JWT_SECRET', 'NODE_ENV', 'CORS_ORIGIN'];
+  const settings = Object.fromEntries(names.map((n) => [n, Boolean(process.env[n]?.trim())]));
+  let database: { ok: boolean; error?: string } = { ok: true };
+  try {
+    await Promise.race([
+      pool.query('SELECT 1'),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timed out connecting to the database')), 8000)),
+    ]);
+  } catch (error: any) {
+    database = { ok: false, error: [error?.code, error?.message].filter(Boolean).join(': ') };
+  }
+  const ok = database.ok && configProblems.length === 0;
+  res.status(ok ? 200 : 500).json({ status: ok ? 'ok' : 'error', problems: configProblems, database, settings, timestamp: new Date().toISOString() });
+});
+
 // Grade attempts whose deadline passed while the candidate was away.
 let lastSweep = 0;
 const sweep = () =>
@@ -37,7 +65,6 @@ const sweep = () =>
 
 // On Vercel the app only runs while handling requests, so the sweep piggybacks
 // on incoming traffic (at most once a minute) instead of using a timer.
-const onVercel = Boolean(process.env.VERCEL);
 if (onVercel) {
   app.use(async (_req, _res, next) => {
     if (Date.now() - lastSweep > 60_000) {
@@ -56,10 +83,6 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/settings', settingsRoutes);
-
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 
 app.use('/api', (_req, res) => {
   res.status(404).json({ message: 'Endpoint not found' });

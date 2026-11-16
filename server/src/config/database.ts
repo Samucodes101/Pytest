@@ -12,11 +12,24 @@ function readCa(value: string | undefined) {
   throw new Error('DB_SSL_CA must be the full certificate text (including the BEGIN/END CERTIFICATE lines) or a path to the .pem file');
 }
 
+/** Set when the database settings are unusable; reported by /api/health instead of crashing at startup. */
+export let dbConfigProblem: string | null = null;
+
+function sslOptions() {
+  if (process.env.DB_SSL !== 'true') return undefined;
+  try {
+    return { rejectUnauthorized: true, ca: readCa(process.env.DB_SSL_CA) };
+  } catch (error) {
+    dbConfigProblem = (error as Error).message;
+    return { rejectUnauthorized: true };
+  }
+}
+
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   port: Number(process.env.DB_PORT) || 3306,
   // DB_SSL_CA: the provider's CA certificate, for hosts like Aiven that use their own CA.
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: true, ca: readCa(process.env.DB_SSL_CA) } : undefined,
+  ssl: sslOptions(),
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'exam_system',
